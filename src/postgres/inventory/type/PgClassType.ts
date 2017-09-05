@@ -74,14 +74,19 @@ class PgClassType extends PgType<PgRow> implements ObjectType<PgRow> {
    * Transforms a Postgres value into an internal value for this type.
    */
   public transformPgValueIntoValue (pgValue: mixed): PgRow {
+
     if (pgValue == null)
       throw new Error('Postgres value of object type may not be nullish.')
 
-    if (typeof pgValue !== 'object')
-      throw new Error(`Postgres value of object type must be an object, not '${typeof pgValue}'.`)
+    const parse = (value: String) => value
+      .substring(1, value.length - 1).split(',')
+      .map(x => x.replace(/"/g, ''))
 
-    return new Map(Array.from(this.fields).map<[string, mixed]>(([fieldName, field]) => {
-      return [fieldName, field.type.transformPgValueIntoValue(pgValue[field.pgAttribute.name])]
+    const row = parse(pgValue as String)
+
+    return new Map(Array.from(this.fields).map<[string, mixed]>(([fieldName, field], i) => {
+      const fieldValue = field.type.transformPgValueIntoValue(row[i])
+      return [fieldName, fieldValue]
     }))
   }
 

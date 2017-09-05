@@ -137,7 +137,7 @@ implements Paginator.Ordering<TInput, TItemValue, OffsetCursor> {
         ${this.orderBy ? sql.query`order by ${this.orderBy}` : sql.query``}
         offset ${sql.value(offset)}
         limit ${limit != null ? sql.value(limit) : sql.query`all`}
-      ) select to_json(${sql.identifier(cteIdentifier)}.value) as value from ${sql.identifier(cteIdentifier)};
+      ) select ${sql.identifier(cteIdentifier)}.value as value from ${sql.identifier(cteIdentifier)};
     `)
 
     // Send our query to Postgres.
